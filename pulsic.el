@@ -27,7 +27,7 @@
 
 ;; The package provides a global minor mode that temporarily highlights the
 ;; current line on every window state change (see `window-state-change-hook'),
-;; except when the last command called is listed in `pulsic-exceptions'.
+;; when `pulsic-predicate' is non-nil.
 
 ;; Similar package: pulsar.el
 
@@ -65,14 +65,14 @@
   "Default face for highlighting the current line in pulsic mode."
   :group 'pulsic)
 
-(defcustom pulsic-exceptions nil
-  "Functions after which not to call `pulsic-pulse'.
+(defcustom pulsic-predicate nil
+  "Predicate to call before running `pulsic-pulse'.
 This only takes effect when `pulsic-mode' is enabled."
-  :type '(repeat function))
+  :type 'function)
 
 (defun pulsic-pulse ()
   "Pulse the current line, unhighlighting before next command."
-  (unless (memq last-command pulsic-exceptions)
+  (when (funcall pulsic-predicate)
     (let* ((n (if (eobp) 0 1))
            (o (make-overlay (line-beginning-position n)
                             (1+ (line-end-position n))))
