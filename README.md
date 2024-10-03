@@ -27,4 +27,6 @@ TOC
   (pulsic-mode 1))
 ```
 
-## Screenshots and configuration examples
+## Demo
+
+![Demo](demo.gif)
