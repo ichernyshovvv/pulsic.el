@@ -2,7 +2,7 @@
 
 The package provides a global minor mode that temporarily highlights the
 current line on every window state change (see `window-state-change-hook`),
-except when the last command called is listed in `pulsic-exceptions`.
+when `pulsic-predicate` is `non-nil`.
 
 Similar package: pulsar.el
 
