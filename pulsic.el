@@ -29,7 +29,7 @@
 ;; current line on every window state change (see `window-state-change-hook'),
 ;; except when the last command called is listed in `pulsic-exceptions'.
 
-;; Similar packages: pulsar.el
+;; Similar package: pulsar.el
 
 ;;; Code:
 
