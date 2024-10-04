@@ -33,24 +33,9 @@
 
 ;;; Code:
 
-(require 'pulse)
-(require 'cus-edit)
-
 (defgroup pulsic nil
   "Customization for `pulsic'."
   :group 'editing :prefix "pulsic-")
-
-(defcustom pulsic-flag pulse-flag
-  (custom-variable-documentation 'pulse-flag)
-  :type (custom-variable-type 'pulse-flag))
-
-(defcustom pulsic-delay pulse-delay
-  (custom-variable-documentation 'pulse-delay)
-  :type (custom-variable-type 'pulse-delay))
-
-(defcustom pulsic-iterations pulse-iterations
-  (custom-variable-documentation 'pulse-iterations)
-  :type (custom-variable-type 'pulse-iterations))
 
 ;;;###autoload
 (define-minor-mode pulsic-mode
@@ -70,18 +55,24 @@
 This only takes effect when `pulsic-mode' is enabled."
   :type 'function)
 
+(defvar pulsic-overlay nil)
+
 (defun pulsic-pulse ()
   "Pulse the current line, unhighlighting before next command."
-  (when (funcall pulsic-predicate)
-    (let* ((n (if (eobp) 0 1))
-           (o (make-overlay (line-beginning-position n)
-                            (1+ (line-end-position n))))
-           (pulse-flag pulsic-flag)
-           (pulse-delay pulsic-delay)
-           (pulse-iterations pulsic-iterations))
-      (overlay-put o 'pulse-delete t)
-      (overlay-put o 'window (frame-selected-window))
-      (pulse-momentary-highlight-overlay o 'pulsic-line))))
+  (when (and (null pulsic-overlay) (funcall pulsic-predicate))
+    (let ((n (if (eobp) 0 1)))
+      (setq pulsic-overlay
+            (make-overlay (line-beginning-position n)
+                          (1+ (line-end-position n))))
+      (overlay-put pulsic-overlay 'window (frame-selected-window))
+      (overlay-put pulsic-overlay 'face 'pulsic-line)
+      (add-hook 'pre-command-hook #'pulsic-unhighlight))))
+
+(defun pulsic-unhighlight ()
+  (when (overlayp pulsic-overlay)
+    (delete-overlay pulsic-overlay)
+    (setq pulsic-overlay nil))
+  (remove-hook 'pre-command-hook #'pulsic-unhighlight))
 
 (provide 'pulsic)
 
