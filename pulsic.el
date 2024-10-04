@@ -65,7 +65,7 @@
   "Default face for highlighting the current line in pulsic mode."
   :group 'pulsic)
 
-(defcustom pulsic-predicate nil
+(defcustom pulsic-predicate #'always
   "Predicate to call before running `pulsic-pulse'.
 This only takes effect when `pulsic-mode' is enabled."
   :type 'function)
