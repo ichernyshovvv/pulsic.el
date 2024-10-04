@@ -56,23 +56,24 @@ This only takes effect when `pulsic-mode' is enabled."
   :type 'function)
 
 (defvar pulsic-overlay nil)
+(defvar pulsic-timer nil)
 
 (defun pulsic-pulse ()
   "Pulse the current line, unhighlighting before next command."
-  (when (and (null pulsic-overlay) (funcall pulsic-predicate))
+  (when (and (null pulsic-timer) (funcall pulsic-predicate))
     (let ((n (if (eobp) 0 1)))
-      (setq pulsic-overlay
-            (make-overlay (line-beginning-position n)
-                          (1+ (line-end-position n))))
+      (setq pulsic-timer (run-at-time 0.3 nil #'pulsic-unhighlight)
+            pulsic-overlay (make-overlay (line-beginning-position n)
+                                         (1+ (line-end-position n))))
       (overlay-put pulsic-overlay 'window (frame-selected-window))
-      (overlay-put pulsic-overlay 'face 'pulsic-line)
-      (add-hook 'pre-command-hook #'pulsic-unhighlight))))
+      (overlay-put pulsic-overlay 'face 'pulsic-line))))
 
 (defun pulsic-unhighlight ()
   (when (overlayp pulsic-overlay)
     (delete-overlay pulsic-overlay)
-    (setq pulsic-overlay nil))
-  (remove-hook 'pre-command-hook #'pulsic-unhighlight))
+    (cancel-timer pulsic-timer)
+    (setq pulsic-overlay nil
+          pulsic-timer nil)))
 
 (provide 'pulsic)
 
