@@ -51,9 +51,11 @@
   :group 'pulsic)
 
 (defcustom pulsic-predicate #'always
-  "Predicate to call before running `pulsic-pulse'.
-This only takes effect when `pulsic-mode' is enabled."
+  "Predicate to call before running `pulsic-pulse'."
   :type 'function)
+
+(defcustom pulsic-duration 0.3
+  "Duration of highlight." :type 'float)
 
 (defvar pulsic-overlay nil)
 (defvar pulsic-timer nil)
@@ -62,13 +64,14 @@ This only takes effect when `pulsic-mode' is enabled."
   "Pulse the current line, unhighlighting before next command."
   (when (and (null pulsic-timer) (funcall pulsic-predicate))
     (let ((n (if (eobp) 0 1)))
-      (setq pulsic-timer (run-at-time 0.3 nil #'pulsic-unhighlight)
+      (setq pulsic-timer (run-at-time pulsic-duration nil #'pulsic-unhighlight)
             pulsic-overlay (make-overlay (line-beginning-position n)
                                          (1+ (line-end-position n))))
       (overlay-put pulsic-overlay 'window (frame-selected-window))
       (overlay-put pulsic-overlay 'face 'pulsic-line))))
 
 (defun pulsic-unhighlight ()
+  "Unhighlight."
   (when (overlayp pulsic-overlay)
     (delete-overlay pulsic-overlay)
     (cancel-timer pulsic-timer)
