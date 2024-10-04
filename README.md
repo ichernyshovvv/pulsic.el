@@ -4,7 +4,7 @@ The package provides a global minor mode that temporarily highlights the
 current line on every window state change (see `window-state-change-hook`),
 when `pulsic-predicate` is `non-nil`.
 
-Similar package: pulsar.el
+Similar package: pulsar.el, hl-line+.el, beacon.el
 
 TOC
 
@@ -23,9 +23,7 @@ TOC
   :config
   (pulsic-mode 1)
   :custom
-  (pulsic-flag t)
-  (pulsic-iterations 1)
-  (pulsic-delay 0.1)
+  (pulsic-duration 0.5)
   (pulsic-predicate
    (lambda ()
      (not

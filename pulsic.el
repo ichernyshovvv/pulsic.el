@@ -29,28 +29,13 @@
 ;; current line on every window state change (see `window-state-change-hook'),
 ;; when `pulsic-predicate' is non-nil.
 
-;; Similar package: pulsar.el
+;; Similar packages: pulsar.el, hl-line+.el, beacon.el
 
 ;;; Code:
-
-(require 'pulse)
-(require 'cus-edit)
 
 (defgroup pulsic nil
   "Customization for `pulsic'."
   :group 'editing :prefix "pulsic-")
-
-(defcustom pulsic-flag pulse-flag
-  (custom-variable-documentation 'pulse-flag)
-  :type (custom-variable-type 'pulse-flag))
-
-(defcustom pulsic-delay pulse-delay
-  (custom-variable-documentation 'pulse-delay)
-  :type (custom-variable-type 'pulse-delay))
-
-(defcustom pulsic-iterations pulse-iterations
-  (custom-variable-documentation 'pulse-iterations)
-  :type (custom-variable-type 'pulse-iterations))
 
 ;;;###autoload
 (define-minor-mode pulsic-mode
@@ -65,23 +50,33 @@
   "Default face for highlighting the current line in pulsic mode."
   :group 'pulsic)
 
-(defcustom pulsic-predicate nil
-  "Predicate to call before running `pulsic-pulse'.
-This only takes effect when `pulsic-mode' is enabled."
+(defcustom pulsic-predicate #'always
+  "Predicate to call before running `pulsic-pulse'."
   :type 'function)
+
+(defcustom pulsic-duration 0.3
+  "Duration of highlight." :type 'float)
+
+(defvar pulsic-overlay nil)
+(defvar pulsic-timer nil)
 
 (defun pulsic-pulse ()
   "Pulse the current line, unhighlighting before next command."
-  (when (funcall pulsic-predicate)
-    (let* ((n (if (eobp) 0 1))
-           (o (make-overlay (line-beginning-position n)
-                            (1+ (line-end-position n))))
-           (pulse-flag pulsic-flag)
-           (pulse-delay pulsic-delay)
-           (pulse-iterations pulsic-iterations))
-      (overlay-put o 'pulse-delete t)
-      (overlay-put o 'window (frame-selected-window))
-      (pulse-momentary-highlight-overlay o 'pulsic-line))))
+  (when (and (null pulsic-timer) (funcall pulsic-predicate))
+    (let ((n (if (eobp) 0 1)))
+      (setq pulsic-timer (run-at-time pulsic-duration nil #'pulsic-unhighlight)
+            pulsic-overlay (make-overlay (line-beginning-position n)
+                                         (1+ (line-end-position n))))
+      (overlay-put pulsic-overlay 'window (frame-selected-window))
+      (overlay-put pulsic-overlay 'face 'pulsic-line))))
+
+(defun pulsic-unhighlight ()
+  "Unhighlight."
+  (when (overlayp pulsic-overlay)
+    (delete-overlay pulsic-overlay)
+    (cancel-timer pulsic-timer)
+    (setq pulsic-overlay nil
+          pulsic-timer nil)))
 
 (provide 'pulsic)
 
