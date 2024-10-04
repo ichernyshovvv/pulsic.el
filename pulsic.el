@@ -29,7 +29,7 @@
 ;; current line on every window state change (see `window-state-change-hook'),
 ;; when `pulsic-predicate' is non-nil.
 
-;; Similar package: pulsar.el
+;; Similar packages: pulsar.el, hl-line+.el, beacon.el
 
 ;;; Code:
 
